@@ -20,6 +20,7 @@ jobs:
         run: |
           export NDK_ROOT=${ANDROID_SDK_ROOT}/ndk/$ANDROID_NDK_VERSION
           export ANDROID_NDK=$NDK_ROOT
+          export ANDROID_NDK_ROOT=$NDK_ROOT ANDROID_NDK_HOME=$NDK_ROOT ANDROID_NDK_LATEST_HOME=$NDK_ROOT
           export ANDROID_HOME=${ANDROID_SDK_ROOT}
           builds/libretro/patches.sh
           grep -n "TARGET_API=" builds/libretro/buildscripts/android/2_build_toolchain.sh

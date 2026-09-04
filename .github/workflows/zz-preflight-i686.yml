@@ -10,7 +10,7 @@ jobs:
         with: { submodules: recursive }
       - name: Build the deps and the core, 32-bit
         run: |
-          docker run --rm --platform linux/386 -v "$PWD":/src -w /src i386/ubuntu:jammy bash -c '
+          docker run --rm --platform linux/386 -v "$PWD":/src -w /src i386/debian:bookworm bash -c '
             set -e
             export DEBIAN_FRONTEND=noninteractive
             apt-get update -qy

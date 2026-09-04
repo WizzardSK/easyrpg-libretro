@@ -1,0 +1,27 @@
+name: buildbot preflight (linux i686)
+on: [push, workflow_dispatch]
+
+jobs:
+  deps-and-core-i686:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - name: Build the deps and the core, 32-bit
+        run: |
+          docker run --rm --platform linux/386 -v "$PWD":/src -w /src i386/ubuntu:jammy bash -c '
+            set -e
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -qy
+            apt-get install -qy build-essential cmake ninja-build pkg-config python3-pip \
+              autoconf automake libtool libtool-bin gettext wget curl file git unzip xz-utils
+            builds/libretro/patches.sh
+            cd builds/libretro/buildscripts/linux-static
+            ./0_build_everything.sh
+            cd /src
+            export EASYRPG_BUILDSCRIPTS=/src/builds/libretro/buildscripts
+            cmake --preset linux-libretro-release -DPLAYER_BUILD_LIBLCF=ON -DCMAKE_INSTALL_PREFIX=. -DCMAKE_IGNORE_PATH=/usr/include -DPLAYER_VERSION_APPEND=libretro
+            cmake --build --preset linux-libretro-release
+            ls -l build/linux-libretro-release/easyrpg_libretro.so
+            file build/linux-libretro-release/easyrpg_libretro.so'

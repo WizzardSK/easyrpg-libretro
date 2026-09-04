@@ -15,7 +15,7 @@ jobs:
             export DEBIAN_FRONTEND=noninteractive
             apt-get update -qy
             apt-get install -qy build-essential cmake ninja-build pkg-config python3-pip \
-              autoconf automake libtool libtool-bin gettext wget curl file git unzip xz-utils
+              autoconf automake libtool libtool-bin gettext wget curl file git unzip xz-utils libpulse-dev libasound2-dev
             builds/libretro/patches.sh
             cd builds/libretro/buildscripts/linux-static
             ./0_build_everything.sh

@@ -1,0 +1,31 @@
+name: buildbot preflight (android deps)
+on: [push, workflow_dispatch]
+
+jobs:
+  deps-android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      ANDROID_NDK_VERSION: 29.0.14206865
+      PLATFORM_TARGET: android
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - name: NDK + build tools (the image has these)
+        run: |
+          echo "y" | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;$ANDROID_NDK_VERSION"
+          pip3 config set global.break-system-packages true
+          pip3 install --upgrade cmake ninja
+      - name: Build the dependencies (replays deps:android)
+        run: |
+          export NDK_ROOT=${ANDROID_SDK_ROOT}/ndk/$ANDROID_NDK_VERSION
+          export ANDROID_NDK=$NDK_ROOT
+          export ANDROID_HOME=${ANDROID_SDK_ROOT}
+          builds/libretro/patches.sh
+          grep -n "TARGET_API=" builds/libretro/buildscripts/android/2_build_toolchain.sh
+          cd builds/libretro/buildscripts/android
+          ./0_build_everything.sh
+      - name: What came out
+        run: |
+          ls builds/libretro/buildscripts/android/ | head -20
+          ls builds/libretro/buildscripts/android/*-toolchain/lib/*.a 2>/dev/null | head -10
